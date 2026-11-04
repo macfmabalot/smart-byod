@@ -648,7 +648,7 @@ def _code_entry(demo: bool) -> None:
     if demo and st.session_state.get("auth_demo_code"):
         st.code(st.session_state["auth_demo_code"], language=None)
     with st.form("auth_verify", clear_on_submit=True):
-        code = st.text_input("Sign-in code", max_chars=OTP_LENGTH + 2, autocomplete="one-time-code")
+        code = st.text_input("Sign-in code", max_chars=OTP_LENGTH + 2)
         if st.form_submit_button("Verify and sign in", type="primary", use_container_width=True):
             err = _verify_code(code)
             if err:
@@ -706,8 +706,8 @@ def require_login() -> None:
         if needs_pw and not stage:
             # ---- step 1: username + password ----
             with st.form("auth_password"):
-                username = st.text_input("Username", autocomplete="username")
-                password = st.text_input("Password", type="password", autocomplete="current-password")
+                username = st.text_input("Username")
+                password = st.text_input("Password", type="password")
                 if st.form_submit_button("Sign in", type="primary", use_container_width=True):
                     user = _check_password(username, password)
                     if user is None:
@@ -757,8 +757,7 @@ def require_login() -> None:
                 kind = "email" if channel == "Email" else "phone"
                 with st.form("auth_request", clear_on_submit=False):
                     entered = st.text_input("Registered email address" if kind == "email" else "Registered mobile number",
-                                            placeholder="name@company.com" if kind == "email" else "+63 917 123 4567",
-                                            autocomplete="off")
+                                            placeholder="name@company.com" if kind == "email" else "+63 917 123 4567")
                     if st.form_submit_button("Send code", type="primary", use_container_width=True):
                         msg = _request_code(kind, entered, demo)
                         if st.session_state.get("auth_pending"):
