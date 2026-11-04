@@ -2008,7 +2008,7 @@ def page_users_devices():
                 "events": "Events", "avg_risk": "Avg Risk", "max_risk": "Max Risk",
                 "alerts": "Alerts",
             }),
-            use_container_width=True, hide_index=True, height=480,
+            use_container_width=True, height=480, #hide_index=True, 
         )
     with tab2:
         d = fdf.groupby("device_id").agg(
