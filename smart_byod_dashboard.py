@@ -649,7 +649,7 @@ def _code_entry(demo: bool) -> None:
         st.code(st.session_state["auth_demo_code"], language=None)
     with st.form("auth_verify", clear_on_submit=True):
         code = st.text_input("Sign-in code", max_chars=OTP_LENGTH + 2)
-        if st.form_submit_button("Verify and sign in", type="primary", use_container_width=True):
+        if st.form_submit_button("Verify and sign in", type="primary", width='stretch'):
             err = _verify_code(code)
             if err:
                 st.session_state["auth_error"] = err
@@ -708,7 +708,7 @@ def require_login() -> None:
             with st.form("auth_password"):
                 username = st.text_input("Username")
                 password = st.text_input("Password", type="password")
-                if st.form_submit_button("Sign in", type="primary", use_container_width=True):
+                if st.form_submit_button("Sign in", type="primary", width='stretch'):
                     user = _check_password(username, password)
                     if user is None:
                         subject = _subject_id("pw", (username or "").strip().lower())
@@ -737,7 +737,7 @@ def require_login() -> None:
                               "phone": f"Mobile ({_mask_contact('phone', user['phone'])})" if user["phone"] else ""}
                     choice = st.radio("Send my code to", [labels[k] for k in kinds], horizontal=False)
                     kind = kinds[[labels[k] for k in kinds].index(choice)]
-                    if st.button("Send code", type="primary", use_container_width=True):
+                    if st.button("Send code", type="primary", width='stretch'):
                         msg = _request_code(kind, "", demo, known_user=user)
                         if st.session_state.get("auth_pending"):
                             st.session_state["auth_info"] = msg
@@ -745,7 +745,7 @@ def require_login() -> None:
                         st.warning(msg)
             else:
                 _code_entry(demo)
-            if st.button("Back to sign in", use_container_width=True):
+            if st.button("Back to sign in", width='stretch'):
                 for k in ("auth_stage", "auth_pending", "auth_demo_code"):
                     st.session_state.pop(k, None)
                 st.rerun()
@@ -758,7 +758,7 @@ def require_login() -> None:
                 with st.form("auth_request", clear_on_submit=False):
                     entered = st.text_input("Registered email address" if kind == "email" else "Registered mobile number",
                                             placeholder="name@company.com" if kind == "email" else "+63 917 123 4567")
-                    if st.form_submit_button("Send code", type="primary", use_container_width=True):
+                    if st.form_submit_button("Send code", type="primary", width='stretch'):
                         msg = _request_code(kind, entered, demo)
                         if st.session_state.get("auth_pending"):
                             st.session_state["auth_info"] = msg
@@ -766,7 +766,7 @@ def require_login() -> None:
                         st.warning(msg)
             else:
                 _code_entry(demo)
-                if st.button("Use a different email / number", use_container_width=True):
+                if st.button("Use a different email / number", width='stretch'):
                     st.session_state.pop("auth_pending", None)
                     st.session_state.pop("auth_demo_code", None)
                     st.rerun()
@@ -1174,7 +1174,7 @@ with st.sidebar:
             f'Signed in as <b>{_who["name"]}</b></div>',
             unsafe_allow_html=True,
         )
-        if st.button("Sign out", use_container_width=True):
+        if st.button("Sign out", width='stretch'):
             _sign_out()
             st.rerun()
     if DATA_SOURCE == "sqlite":
@@ -1249,7 +1249,7 @@ with st.sidebar:
     device_options = ["All Devices"] + sorted(df["device_id"].unique().tolist())
     device_filter = st.selectbox("Device", device_options)
 
-    apply_filters = st.button("Apply Filters", use_container_width=True, type="primary")
+    apply_filters = st.button("Apply Filters", width='stretch', type="primary")
 
 
 
@@ -1308,7 +1308,7 @@ def page_dashboard():
             unsafe_allow_html=True,
         )
     with refresh_col:
-        st.button("\U0001F504 Refresh", use_container_width=True)
+        st.button("\U0001F504 Refresh", width='stretch')
 
     # ---- Window comparison for "vs last hour" deltas (data-driven) ---------
     cur_window = df[df["timestamp"] > DATASET_NOW - timedelta(hours=1)]
@@ -1405,7 +1405,7 @@ def page_dashboard():
                 height=150, margin=dict(l=20, r=30, t=20, b=20),
                 paper_bgcolor="rgba(0,0,0,0)", font={"color": TEXT_MAIN},
             )
-            st.plotly_chart(gauge, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(gauge, width='stretch', config={"displayModeBar": False})
             st.markdown(
                 f'<div style="text-align:center; margin-top:-14px;">'
                 f'<span style="color:{RISK_COLORS[top["risk_level"]]}; font-weight:700; font-size:12.5px;">'
@@ -1471,7 +1471,7 @@ def page_dashboard():
                 )
                 st.plotly_chart(
                     sparkline_fig(trend_series, color=RISK_COLORS[top["risk_level"]]),
-                    use_container_width=True, config={"displayModeBar": False},
+                    width='stretch', config={"displayModeBar": False},
                     key=f"spark_{feat}",
                 )
         st.markdown("</div>", unsafe_allow_html=True)
@@ -1740,7 +1740,7 @@ def page_model_evaluation():
         sns.histplot(full[feat], bins=30, kde=True, ax=ax, color=BRAND_RED)
         ax.set_title(f"{feat} \u2014 {FEATURE_META[feat]['label']}")
     fig1.tight_layout()
-    st.pyplot(fig1, use_container_width=True)
+    st.pyplot(fig1, width='stretch')
     plt.close(fig1)
     panel_end()
 
@@ -1763,7 +1763,7 @@ def page_model_evaluation():
             ax.set_xticklabels(["Normal (0)", "Anomalous (1)"])
             ax.set_title(f"{feat} \u2014 {FEATURE_META[feat]['label']}")
         fig3.tight_layout()
-        st.pyplot(fig3, use_container_width=True)
+        st.pyplot(fig3, width='stretch')
         plt.close(fig3)
         panel_end()
 
@@ -1785,7 +1785,7 @@ def page_model_evaluation():
         sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax2,
                      cbar_kws={"label": "Correlation"}, annot_kws={"size": 7})
         fig2.tight_layout()
-        st.pyplot(fig2, use_container_width=True)
+        st.pyplot(fig2, width='stretch')
         plt.close(fig2)
         panel_end()
 
@@ -1803,7 +1803,7 @@ def page_model_evaluation():
         for i, cou in enumerate(counts4):
             ax4.text(i, cou + 0.02, f"{cou:,}", ha="center", color=TEXT_MAIN)
         fig4.tight_layout()
-        st.pyplot(fig4, use_container_width=True)
+        st.pyplot(fig4, width='stretch')
         plt.close(fig4)
         white_caption("Derived from this run's Isolation Forest risk scores &mdash; not randomly assigned.")
         panel_end()       
@@ -1825,7 +1825,7 @@ def page_model_evaluation():
             ax5.grid(False)
             #ax5.set_title("Confusion Matrix")
             fig5.tight_layout()
-            st.pyplot(fig5, use_container_width=True)
+            st.pyplot(fig5, width='stretch')
             plt.close(fig5)
             panel_end()
 
@@ -1850,7 +1850,7 @@ def page_model_evaluation():
                 #ax6.set_title("ROC Curve")
                 ax6.legend()
                 fig6.tight_layout()
-                st.pyplot(fig6, use_container_width=True)
+                st.pyplot(fig6, width='stretch')
                 plt.close(fig6)
             panel_end()
 
@@ -1878,7 +1878,7 @@ def page_model_evaluation():
             for i, v in enumerate(vals7):
                 ax7.text(i, v + 0.02, f"{v:,.2f}", ha="center", color=TEXT_MAIN)
             fig7.tight_layout()
-            st.pyplot(fig7, use_container_width=True)
+            st.pyplot(fig7, width='stretch')
             plt.close(fig7)
             panel_end()
 
@@ -1901,7 +1901,7 @@ def page_model_evaluation():
         #ax8.set_title("Event Processing Performance")
         plt.setp(ax8.get_xticklabels(), rotation=20, ha="right")
         fig8.tight_layout()
-        st.pyplot(fig8, use_container_width=True)
+        st.pyplot(fig8, width='stretch')
         plt.close(fig8)
         white_caption("Timed live against the loaded CSV on this run (not hardcoded).")
         panel_end()
@@ -1923,7 +1923,7 @@ def page_model_evaluation():
         ax9.set_ylim(0, 100)
         #ax9.set_title("CPU and Memory Utilization")
         fig9.tight_layout()
-        st.pyplot(fig9, use_container_width=True)
+        st.pyplot(fig9, width='stretch')
         plt.close(fig9)
         white_caption("Live simulated telemetry (same values as the System Performance panel) &mdash; "
                       "the dataset has no CPU/Memory columns.")
@@ -1943,7 +1943,7 @@ def page_model_evaluation():
         ax10.set_ylabel("Count")
         #ax10.set_title("Dashboard Alert Distribution by Risk Level")
         fig10.tight_layout()
-        st.pyplot(fig10, use_container_width=True)
+        st.pyplot(fig10, width='stretch')
         plt.close(fig10)
         white_caption("Only sessions that actually fired an alert (Moderate, High, Critical) are counted.")
         panel_end()
@@ -1974,7 +1974,7 @@ def page_alerts():
         "risk_level": "Level", "action": "Action", "ip_address": "IP Address",
         "location": "Location",
     })
-    st.dataframe(show, use_container_width=True, hide_index=True, height=520)
+    st.dataframe(show, width='stretch', hide_index=True, height=520)
     st.download_button(
         "\u2B07\uFE0F Download alerts as CSV",
         show.to_csv(index=False).encode("utf-8"),
@@ -2008,7 +2008,7 @@ def page_users_devices():
                 "events": "Events", "avg_risk": "Avg Risk", "max_risk": "Max Risk",
                 "alerts": "Alerts",
             }),
-             height=480, width='stretch', #hide_index=True, use_container_width=True,
+             height=480, width='stretch', #hide_index=True, width='stretch',
         )
     with tab2:
         d = fdf.groupby("device_id").agg(
@@ -2028,7 +2028,7 @@ def page_users_devices():
                 "events": "Events", "avg_risk": "Avg Risk", "max_risk": "Max Risk",
                 "alerts": "Alerts",
             }),
-            use_container_width=True, hide_index=True, height=480,
+            width='stretch', hide_index=True, height=480,
         )
 
 
@@ -2059,7 +2059,7 @@ def page_activity_logs():
             .rename(columns={"timestamp": "Time", "user_id": "User", "user_type": "Type",
                               "device_id": "Device", "session_id": "Session",
                               "risk_score": "Risk", "risk_level": "Level", "action": "Action"}),
-        use_container_width=True, hide_index=True, height=560,
+        width='stretch', hide_index=True, height=560,
     )
     st.download_button(
         "\u2B07\uFE0F Download filtered log as CSV",
@@ -2085,7 +2085,7 @@ def _reports_risk():
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color=TEXT_MAIN),
         )
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
     with r2:
@@ -2100,7 +2100,7 @@ def _reports_risk():
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color=TEXT_MAIN), yaxis=dict(autorange="reversed"),
         )
-        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig2, width='stretch', config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="panel"><div class="panel-title">Average Daily Risk Trend</div>', unsafe_allow_html=True)
@@ -2112,7 +2112,7 @@ def _reports_risk():
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color=TEXT_MAIN),
     )
-    st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig3, width='stretch', config={"displayModeBar": False})
     st.markdown("</div>", unsafe_allow_html=True)
 
     top_users = (
@@ -2126,7 +2126,7 @@ def _reports_risk():
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color=TEXT_MAIN), yaxis=dict(autorange="reversed"),
     )
-    st.plotly_chart(fig4, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig4, width='stretch', config={"displayModeBar": False})
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -2165,12 +2165,12 @@ def _hbar(labels, values, hover_unit, value_fmt="{:,.0f}", muted=("Unknown",), h
     _style_fig(fig, height or max(240, 34 * len(labels) + 40))
     fig.update_yaxes(autorange="reversed", gridcolor="rgba(0,0,0,0)")
     fig.update_xaxes(rangemode="tozero")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 
 def _table_view(df_table):
     with st.expander("View as table"):
-        st.dataframe(df_table, use_container_width=True, hide_index=True)
+        st.dataframe(df_table, width='stretch', hide_index=True)
 
 
 def _reports_devices():
@@ -2277,7 +2277,7 @@ def _reports_devices():
         _style_fig(fig, 300)
         fig.update_yaxes(rangemode="tozero")
         fig.update_xaxes(tickangle=-60, gridcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
         peak = int(hours.idxmax())
         st.caption(f"Peak hour: {peak:02d}:00 with {int(hours.max()):,} events.")
         _table_view(pd.DataFrame({"Hour": [f"{h:02d}:00" for h in hours.index], "Events": hours.values}))
