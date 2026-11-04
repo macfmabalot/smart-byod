@@ -1235,7 +1235,7 @@ with st.sidebar:
         "NAVIGATION",
         ["🏠 Dashboard", "🔔 Alerts", "👥 Users & Devices", "📝 Activity Logs",
          "📄 Reports", "\U0001F9EA Model Evaluation", "📊 System Performance", "⚙️ Settings"],
-        label_visibility="visible",
+        #label_visibility="visible",
     )
     st.markdown("---")
     st.markdown("**FILTERS**")
