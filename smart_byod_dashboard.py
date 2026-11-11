@@ -2258,12 +2258,12 @@ def get_system_metrics() -> dict:
 
 
 def _perf_note() -> str:
-    """Alert response and risk-update interval come from the latest performance test (PT-01, PT-02)."""
+    #"""Alert response and risk-update interval come from the latest performance test (PT-01, PT-02)."""
     a, r = latest_perf_result("PT-01"), latest_perf_result("PT-02")
-    if a is None and r is None:
-        return "Alert response time and risk-update interval are measured by the performance test (--perf-test). "
-    part = lambda name, v: f"{name}: {v[0]} ({v[1]})" if v else ""
-    return "Latest performance test - " + "; ".join(x for x in (part("alert response", a), part("risk update", r)) if x) + ". "
+    #if a is None and r is None:
+    #    return "Alert response time and risk-update interval are measured by the performance test (--perf-test). "
+    #part = lambda name, v: f"{name}: {v[0]} ({v[1]})" if v else ""
+    #return "Latest performance test - " + "; ".join(x for x in (part("alert response", a), part("risk update", r)) if x) + ". "
 
 
 def render_system_performance(compact=False):
