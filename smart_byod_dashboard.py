@@ -2197,13 +2197,13 @@ def page_dashboard():
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ---- C. BEHAVIORAL ACTIVITY - SCENARIO EVIDENCE (S02-S07) ---------------
-    st.markdown(
-        '<div class="panel"><div class="panel-title">C. BEHAVIORAL ACTIVITY – SCENARIO EVIDENCE '
-        '<span class="sub">(Current Session S02–S07, or VAPT test records S01–S08)</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_scenario_evidence(top, user_hist)
-    st.markdown("</div>", unsafe_allow_html=True)
+    #st.markdown(
+    #    '<div class="panel"><div class="panel-title">C. BEHAVIORAL ACTIVITY – SCENARIO EVIDENCE '
+    #    '<span class="sub">(Current Session S02–S07, or VAPT test records S01–S08)</span></div>',
+    #    unsafe_allow_html=True,
+    #)
+    #render_scenario_evidence(top, user_hist)
+    #st.markdown("</div>", unsafe_allow_html=True)
 
     # ---- E. SYSTEM PERFORMANCE (measured) -------------------------------------
     st.markdown(
@@ -2340,14 +2340,13 @@ def measure_pipeline_timing(raw_data: pd.DataFrame, contam: float) -> dict:
     return {k: max(v, 0.1) for k, v in timings.items()}
 
 # ==============================================================================
-# PAGE: MODEL EVALUATION (thesis figures — Chapter 4)
+# PAGE: MODEL EVALUATION (thesis figures — Chapter 4) (Table 3.5-14), Only records with a generator label are graded; live FortiGate '        'records carry no ground truth.
 # ==============================================================================
 def page_model_evaluation():
     st.markdown('<div class="app-title">\U0001F9EA Model Evaluation</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="app-subtitle">Isolation Forest detection, risk-engine bands (Table 3.5-14), calibration '
-        'and the six behavioral features. Only records with a generator label are graded; live FortiGate '
-        'records carry no ground truth.</div>',
+        '<div class="app-subtitle">Isolation Forest detection, risk-engine bands,  calibration '
+        'and the six behavioral features. </div>',
         unsafe_allow_html=True,
     )
 
@@ -2369,11 +2368,11 @@ def page_model_evaluation():
     if "ground_truth" in full.columns and full["ground_truth"].notna().any():
         pool = fdf if fdf["ground_truth"].notna().any() else full
         lab = pool[pool["ground_truth"].notna()].copy()
-        SOURCE_NOTE = ("Graded on the labeled CSV, scored in the app with the analyzer's method."
-                       if DATA_SOURCE == "csv" else
-                       "Graded on generator-labeled records scored by the analyzer. The live model is fitted on "
-                       "normal-range records, so there is no held-out partition here; use "
-                       "'SMART-BYOD_Analyze.py --evaluate-csv' for the held-out test metrics.")
+        #SOURCE_NOTE = ("Graded on the labeled CSV, scored in the app with the analyzer's method."
+        #               if DATA_SOURCE == "csv" else
+        #               "Graded on generator-labeled records scored by the analyzer. The live model is fitted on "
+        #               "normal-range records, so there is no held-out partition here; use "
+        #               "'SMART-BYOD_Analyze.py --evaluate-csv' for the held-out test metrics.")
     else:
         bench_path = find_file(CSV_FILENAME)
         if bench_path is not None:
@@ -2459,9 +2458,9 @@ def page_model_evaluation():
             st.warning("This selection lacks one of the classes, so precision, recall and ROC-AUC are not meaningful.")
         panel_end()
 
-        # ---- Scenario detection and Table 3.5-14 bands ------------------------
+        # ---- Scenario detection and Table 3.5-14 bands ------------------------(Table 3.5-14)
         if "scenario" in lab.columns:
-            panel_start("&mdash; Scenario Results (S01–S08) and Expected Risk Bands (Table 3.5-14)")
+            panel_start("&mdash; Scenario Results (S01–S08) and Expected Risk Bands ")
             codes = scenario_codes(lab)
             det_rows = []
             for code in SCENARIO_ORDER:
@@ -2553,7 +2552,7 @@ def page_model_evaluation():
         fig4.tight_layout()
         st.pyplot(fig4, width='stretch')
         plt.close(fig4)
-        white_caption("R = 100 (0.40 A + 0.25 I + 0.20 D + 0.15 C), bands of Table 3.5-7.")
+        white_caption("R = 100 (0.40 A + 0.25 I + 0.20 D + 0.15 C)")#, bands of Table 3.5-7.
         panel_end()
 
     if HAS_LABELS:
@@ -3063,7 +3062,7 @@ def page_reports():
     st.markdown('<div class="app-title">📄 Reports</div>', unsafe_allow_html=True)
     st.markdown('<div class="app-subtitle">Risk summary over the current filter window, and device & network usage</div>',
                 unsafe_allow_html=True)
-    tab_risk, tab_dev = st.tabs(["Risk Reports", "Device & Network"])
+    tab_risk, tab_dev = st.tabs(["Risk Reports"])#, "Device & Network"
     with tab_risk:
         _reports_risk()
     with tab_dev:
@@ -3243,34 +3242,34 @@ def page_system_performance():
     if st.button("\U0001F504 Refresh telemetry"):
         st.rerun()
 
-    db_path = find_file(DB_FILENAME) if DATA_SOURCE == "sqlite" else None
-    st.markdown('<div class="panel"><div class="panel-title">System Performance Test (PT-01 to PT-08)</div>',
-                unsafe_allow_html=True)
-    if db_path is None:
-        st.info("The performance test results are stored in the SQLite database; they are not available in CSV mode.")
-    else:
-        render_perf_results(db_path)
-    st.markdown("</div>", unsafe_allow_html=True)
+    #db_path = find_file(DB_FILENAME) if DATA_SOURCE == "sqlite" else None
+    #st.markdown('<div class="panel"><div class="panel-title">System Performance Test (PT-01 to PT-08)</div>',
+    #            unsafe_allow_html=True)
+    #if db_path is None:
+    #    st.info("The performance test results are stored in the SQLite database; they are not available in CSV mode.")
+    #else:
+    #    render_perf_results(db_path)
+    #st.markdown("</div>", unsafe_allow_html=True)
 
-    if db_path is None:
-        return
-    st.markdown('<div class="panel"><div class="panel-title">Live Performance Monitor (measures PT-03)</div>',
-                unsafe_allow_html=True)
-    live_on = st.toggle("Live performance monitor (refresh every second while a --perf-test runs)", value=False,
-                        key="perf_live_on")
-    if live_on:
-        if _live_monitor_fragment is None:
-            st.warning("This Streamlit version has no st.fragment (needs 1.37 or later); the monitor refreshes only "
-                       "when you press Refresh telemetry, so PT-03 values will be too high. Run: pip install -U streamlit")
-            _live_monitor_body(db_path)
-        else:
-            _live_monitor_fragment(db_path)
-    else:
-        st.markdown(f'<div style="color:{TEXT_SUB}; font-size:12.5px;">Switch this on, then start '
-                    f'<code>python SMART-BYOD_Analyze.py --perf-test --db {DB_FILENAME}</code>. Keep this page open '
-                    f'until the analyzer prints its report; reload the page afterwards to see the results above.</div>',
-                    unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    #if db_path is None:
+    #    return
+    #st.markdown('<div class="panel"><div class="panel-title">Live Performance Monitor (measures PT-03)</div>',
+    #            unsafe_allow_html=True)
+    #live_on = st.toggle("Live performance monitor (refresh every second while a --perf-test runs)", value=False,
+    #                    key="perf_live_on")
+    #if live_on:
+    #    if _live_monitor_fragment is None:
+    #        st.warning("This Streamlit version has no st.fragment (needs 1.37 or later); the monitor refreshes only "
+    #                   "when you press Refresh telemetry, so PT-03 values will be too high. Run: pip install -U streamlit")
+    #        _live_monitor_body(db_path)
+    ###    else:
+    #        _live_monitor_fragment(db_path)
+    ##else:
+    #    st.markdown(f'<div style="color:{TEXT_SUB}; font-size:12.5px;">Switch this on, then start '
+    #                f'<code>python SMART-BYOD_Analyze.py --perf-test --db {DB_FILENAME}</code>. Keep this page open '
+    #                f'until the analyzer prints its report; reload the page afterwards to see the results above.</div>',
+    #                unsafe_allow_html=True)
+    ##st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==============================================================================
