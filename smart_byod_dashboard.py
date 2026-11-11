@@ -1112,7 +1112,7 @@ def get_dataset():
             data, unscored = load_from_sqlite(str(db_path), db_signature(db_path))
             if len(data):
                 return data, "sqlite", unscored
-            st.sidebar.warning(f"'{DB_FILENAME}' has no scored events yet - using the CSV instead.")
+            pass  # st.sidebar.warning(f"'{DB_FILENAME}' has no scored events yet - using the CSV instead.")  # hidden for deployment
         except NineFeatureDatabase as exc:
             st.sidebar.error(f"'{DB_FILENAME}': {exc}. Using the CSV instead.")
         except Exception as exc:
@@ -1459,11 +1459,12 @@ with st.sidebar:
         if UNSCORED_COUNT:
             status += f" &middot; {UNSCORED_COUNT:,} not yet scored"
     else:
-        status = f"Data source: CSV ({CSV_FILENAME})"
-    st.markdown(
-        f'<div style="color:{TEXT_SUB}; font-size:12px; margin-bottom:10px;">{status}</div>',
-        unsafe_allow_html=True,
-    )
+        status = ""  # f"Data source: CSV ({CSV_FILENAME})"  # hidden for deployment
+    if status:
+        st.markdown(
+            f'<div style="color:{TEXT_SUB}; font-size:12px; margin-bottom:10px;">{status}</div>',
+            unsafe_allow_html=True,
+        )
 
     if DATA_SOURCE == "csv":
         st.markdown(
@@ -2024,7 +2025,7 @@ def page_dashboard():
             ("User ID", top["user_id"] if IS_ADMIN else USER_ANON_MAP.get(top["user_id"], top["user_id"])),
             ("Device ID", top["device_id"] if IS_ADMIN else mask_mac(top["device_id"], keep=3)),
             ("IP Address", top["ip_address"] if IS_ADMIN else mask_ip(top["ip_address"])),
-            ("Location", top["location"]),
+            # ("Location", top["location"]),   # hidden for deployment
             ("Last Activity", top["timestamp"].strftime("%H:%M:%S")),
             ("Current Action", None),  # rendered as a colored badge below
         ]
@@ -2423,7 +2424,8 @@ def page_model_evaluation():
     panel_end()
 
     if HAS_LABELS:
-        st.info(SOURCE_NOTE)
+        if SOURCE_NOTE:
+            st.info(SOURCE_NOTE)
         if is_nine_feature_frame(lab):
             st.warning(nine_note)
         y_eval, pred_eval, score_eval = lab["ground_truth"], lab["predicted_anomaly"].astype(int), lab["anomaly_score"].astype(float)
@@ -2709,13 +2711,13 @@ def page_alerts():
         labels = [f"{r.timestamp:%Y-%m-%d %H:%M:%S} · {r.risk_level} {r.risk_score:,.0f} · "
                   f"{(r.user_id if IS_ADMIN else USER_ANON_MAP.get(r.user_id, r.user_id))}" for r in pick.itertuples()]
         default = int(pick["risk_score"].idxmax())
-        chosen = st.selectbox("Alert detail (Figure 3.3-7 layout)", range(len(pick)), index=default,
+        chosen = st.selectbox("Alert detail", range(len(pick)), index=default, #(Figure 3.3-7 layout)
                               format_func=lambda i: labels[i])
         render_alert_card(pick.loc[chosen])
 
     show = alerts[[
         "timestamp", "user_id", "user_type", "device_id", "scenario_code", "alert_type", "driver",
-        "risk_score", "risk_level", "action", "indicators", "ip_address", "location",
+        "risk_score", "risk_level", "action", "indicators", "ip_address",   # "location" hidden for deployment
     ]].copy()
     show["scenario_code"] = show["scenario_code"].map(SCENARIO_LABELS).fillna(show["scenario_code"])
     if not IS_ADMIN:
@@ -2726,7 +2728,6 @@ def page_alerts():
         "device_id": "Device", "scenario_code": "Scenario", "alert_type": "Alert Type", "driver": "Main Driver",
         "indicators": "Indicators", "risk_score": "Risk",
         "risk_level": "Level", "action": "Action", "ip_address": "IP Address",
-        "location": "Location",
     })
     st.dataframe(show, width='stretch', hide_index=True, height=520)
     st.download_button(
@@ -3060,13 +3061,13 @@ def _reports_devices():
 
 def page_reports():
     st.markdown('<div class="app-title">📄 Reports</div>', unsafe_allow_html=True)
-    st.markdown('<div class="app-subtitle">Risk summary over the current filter window, and device & network usage</div>',
+    st.markdown('<div class="app-subtitle">Risk summary over the current filter window</div>',
                 unsafe_allow_html=True)
-    tab_risk, tab_dev = st.tabs(["Risk Reports"])#, "Device & Network"
+    (tab_risk,) = st.tabs(["Risk Reports"])   # "Device & Network" tab hidden for deployment
     with tab_risk:
         _reports_risk()
-    with tab_dev:
-        _reports_devices()
+    # with tab_dev:
+    #     _reports_devices()
 
 
 # ==============================================================================
@@ -3324,7 +3325,7 @@ def page_settings():
         mv = df["model_version"].dropna().unique() if "model_version" in df.columns else []
         st.write(f"- **Model version:** {', '.join(map(str, mv)) or 'n/a'} (contamination set in the analyzer)")
     else:
-        st.write(f"- **Data source:** CSV ({CSV_FILENAME}), scored in the app")
+        pass  # st.write(f"- **Data source:** CSV ({CSV_FILENAME}), scored in the app")  # hidden for deployment
         st.write(f"- **Contamination (current):** {contamination}")
     st.write(f"- **Records loaded:** {len(df):,}")
     st.write(f"- **Unique users:** {df['user_id'].nunique()} &nbsp;|&nbsp; **Unique devices:** {df['device_id'].nunique()}")
